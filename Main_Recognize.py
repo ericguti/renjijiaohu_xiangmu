@@ -24,7 +24,7 @@ hand = {'One': '1', 'Five': '5', 'Fist': '拳头', 'Ok': 'OK',
         'Eight': '8', 'Nine': '9', 'Rock': 'Rock', 'Insult': '竖中指', 'Face': '脸'}
 
 # 手势识别
-#gesture_client = AipBodyAnalysis(APP_ID, API_KEY, SECRET_KEY)
+gesture_client = AipBodyAnalysis(APP_ID, API_KEY, SECRET_KEY)
 
 # 一些识别用的参数
 
@@ -34,6 +34,49 @@ Matched = [0, 0, 0, 0, 0]  # 1代表正确  -1代表错误 0代表miss
 fail_type = [0, 0, 0, 0, 0]  # 这里用于防止失误检测
 game_level = [1, 12, 14]  # 游戏关卡 写死了
 
+# You can calculate the current score using the setter functions or calculate the total
+# score from the "Matched array"
+class Score():
+    score = 0
+    consecutive_count = 0
+
+    def __init__(self):
+        self.reset_score()
+
+    def reset_score(self):
+        self.score = 0
+        self.consecutive_count = 0
+
+    def get_score(self):
+        return self.score
+
+    def add_correct(self):
+        self.score += 1
+        self.consecutive_count += 1
+        if(self.consecutive_count == 3):
+            self.score += 2
+        if(self.consecutive_count == 5):
+            self.score +=3
+
+    def add_error(self):
+        self.score -= 1
+        self.consecutive_count = 0
+
+    def add_miss(self):
+        self.score -= 2
+        self.consecutive_count = 0
+
+    # 用于阶段结束之后计算"matched"序列总计
+    # 每次被叫总分清零
+    def count_score(self, matched):
+
+        for i in matched:
+            if i == 1:
+                self.add_correct()
+            elif i == -1:
+                self.add_error()
+            elif i == -2:
+                self.add_miss()
 
 # 对话框
 class ScoreDialog(QDialog):
